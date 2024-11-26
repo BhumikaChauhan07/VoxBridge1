@@ -13,11 +13,22 @@ const createToken = (userInfo: AccessTokenOptions, grant: VideoGrant) => {
   at.addGrant(grant);
   return at.toJwt();
 };
+
 import axios from "axios";
 
 const apiKey = process.env.LIVEKIT_API_KEY;
 const apiSecret = process.env.LIVEKIT_API_SECRET;
 const apiHost = process.env.NEXT_PUBLIC_LIVEKIT_API_HOST as string;
+
+
+//all new**************************************************************************************************************************************
+if (!apiKey || !apiSecret || !apiHost) {
+  console.error("Missing LiveKit API configuration");
+  throw new Error("LiveKit API is not configured correctly");
+}
+//************************************************************************************************************************************ 
+
+
 import {
   createTRPCRouter,
   publicProcedure,
@@ -25,12 +36,17 @@ import {
 } from "~/server/api/trpc";
 import { TokenResult } from "~/lib/type";
 import { CreateRoomRequest } from "livekit-server-sdk/dist/proto/livekit_room";
+
+
 const roomClient = new RoomServiceClient(apiHost, apiKey, apiSecret);
 const configuration = new Configuration({
   apiKey: process.env.OPEN_API_SECRET,
 });
+
 import { Configuration, OpenAIApi } from "openai";
+
 const openai = new OpenAIApi(configuration);
+
 export const roomsRouter = createTRPCRouter({
   joinRoom: protectedProcedure
     .input(
@@ -88,6 +104,7 @@ export const roomsRouter = createTRPCRouter({
 
       return result;
     }),
+
   createRoom: protectedProcedure.mutation(async ({ ctx }) => {
     const identity = ctx.session.user.id;
     const name = ctx.session.user.name;
@@ -100,9 +117,26 @@ export const roomsRouter = createTRPCRouter({
         },
       },
     });
-    await roomClient.createRoom({
+
+    //********************************************************************************************************************* 
+    console.log("Room created in database:", room.name);
+    //*********************************************************************************************************************
+
+    /*await roomClient.createRoom({
       name: room.name,
-    });
+    });*/
+
+    try {
+      console.log("Attempting to create room in LiveKit...");
+      await roomClient.createRoom({ name: room.name });
+      console.log("LiveKit room created successfully");
+    } catch (error) {
+      console.error("Failed to create LiveKit room:", error);
+    }
+
+    //*********************************************************************************************************************
+    //console.log("LiveKit room created successfully");
+    //*********************************************************************************************************************
 
     const grant: VideoGrant = {
       room: room.name,

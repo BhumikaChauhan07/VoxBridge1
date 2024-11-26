@@ -16,7 +16,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <Head>
-        <title>Jab We Meet</title>
+        <title>VoxBridge</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

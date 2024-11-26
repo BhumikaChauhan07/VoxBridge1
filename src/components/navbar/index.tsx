@@ -53,7 +53,7 @@ const Navbar = ({
               />
             </PopAnimation>
             <CharacterAnimation
-              text="Jab We Meet"
+              text="VoxBridge"
               textStyle="text-xl font-bold text-white"
             />
           </Link>
